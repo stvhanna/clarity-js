@@ -70,15 +70,20 @@ interface IPlugin {
 interface IPayload {
   envelope: IEnvelope;
   events: IEvent[];
+  metadata?: IImpressionMetadata;
 }
 
 interface IEnvelope {
+  impressionId: string;
+  time: number;
+  sequenceNumber: number;
+}
+
+interface IImpressionMetadata {
   clarityId: string;
   impressionId: string;
   url: string;
   version: string;
-  time?: number;
-  sequenceNumber?: number;
 }
 
 interface IEventData {
