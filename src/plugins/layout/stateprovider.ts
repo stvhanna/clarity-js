@@ -137,8 +137,6 @@ export function createGenericLayoutState(node: Node, tag: string): ILayoutState 
     parent: getNodeIndex(node.parentNode),
     previous: getNodeIndex(node.previousSibling),
     next: getNodeIndex(node.nextSibling),
-    source: null,
-    action: null,
     tag
   };
   return layoutState;
