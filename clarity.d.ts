@@ -172,10 +172,14 @@ interface ILayoutRectangle {
 }
 
 declare const enum Action {
+  Discover,
   Insert,
-  Update,
   Remove,
-  Move
+  Move,
+  AttributeUpdate,
+  CharacterDataUpdate,
+  Scroll,
+  Input
 }
 
 interface IAttributes {
@@ -196,13 +200,8 @@ interface IInsert extends IMutation {
   state: ILayoutState;
 }
 
-interface IDiscover extends IInsert {
-  // No extra properties. Differs from Insert only in 'action' property
-}
-
-interface IUpdate extends IMutation {
-  new: IAttributes;
-  removed: string[];
+interface IDiscover extends ILayoutEvent {
+  state: ILayoutState;
 }
 
 interface IRemove extends IMutation {
@@ -215,12 +214,21 @@ interface IMove extends IMutation {
   next: number; /* Index of the next sibling, if known */
 }
 
+interface IAttributeUpdate extends IMutation {
+  new: IAttributes;
+  removed: string[];
+}
+
+interface ICharacterDataUpdate extends IMutation {
+  content: string;
+}
+
 interface IScroll extends ILayoutEvent {
   // TODO: Fill
 }
 
 interface IInput extends ILayoutEvent {
-  // TODO: Fill
+  value: string;
 }
 
 // Generic storage of various data pieces that can be passed along with
@@ -249,6 +257,13 @@ interface IElementLayoutState extends ILayoutState {
   attributes: IAttributes;  /* Attributes associated with an element */
   layout: ILayoutRectangle; /* Layout rectangle */
 }
+
+interface IInputLayoutState extends IElementLayoutState {
+  value: string;
+}
+
+type InputElement = HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement;
+type CharacterDataNode = Text | Comment | ProcessingInstruction;
 
 interface ITextLayoutState extends ILayoutState {
   content: string;
