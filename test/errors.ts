@@ -27,11 +27,11 @@ describe("Error Tests", () => {
         errors.logError(syntheticEvent);
         let events = stopObserving();
         assert.equal(events.length, 1);
-        assert.equal(events[0].state.type, Instrumentation.JsError);
-        assert.equal(events[0].state.message, message);
-        assert.equal(events[0].state.source, filename);
-        assert.equal(events[0].state.lineno, lineno);
-        assert.equal(events[0].state.colno, colno);
+        assert.equal(events[0].data.type, Instrumentation.JsError);
+        assert.equal(events[0].data.message, message);
+        assert.equal(events[0].data.source, filename);
+        assert.equal(events[0].data.lineno, lineno);
+        assert.equal(events[0].data.colno, colno);
         done();
      });
 
@@ -49,11 +49,11 @@ describe("Error Tests", () => {
         errors.logError(syntheticEvent);
         let events = stopObserving();
         assert.equal(events.length, 1);
-        assert.equal(events[0].state.type, Instrumentation.JsError);
-        assert.equal(events[0].state.message, message);
-        assert.equal(events[0].state.source, filename);
-        assert.equal(events[0].state.lineno, lineno);
-        assert.equal(events[0].state.colno, colno);
+        assert.equal(events[0].data.type, Instrumentation.JsError);
+        assert.equal(events[0].data.message, message);
+        assert.equal(events[0].data.source, filename);
+        assert.equal(events[0].data.lineno, lineno);
+        assert.equal(events[0].data.colno, colno);
         done();
     });
 
@@ -68,8 +68,8 @@ describe("Error Tests", () => {
         errors.logError(syntheticEvent);
         let events = stopObserving();
         assert.equal(events.length, 3);
-        assert.equal(events[0].state.type, Instrumentation.JsError);
-        assert.equal(events[0].state.message, message);
+        assert.equal(events[0].data.type, Instrumentation.JsError);
+        assert.equal(events[0].data.message, message);
         done();
     });
 
@@ -81,8 +81,8 @@ describe("Error Tests", () => {
         errors.logError(syntheticEvent);
         let events = stopObserving();
         assert.equal(events.length, 1);
-        assert.equal(events[0].state.type, Instrumentation.JsError);
-        assert.equal(events[0].state.message, message);
+        assert.equal(events[0].data.type, Instrumentation.JsError);
+        assert.equal(events[0].data.message, message);
         done();
     });
 });

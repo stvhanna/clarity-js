@@ -60,8 +60,8 @@ describe("Compression Worker Tests", () => {
     let secondMockEvent = getMockEvent(secondMockEventName);
     let firstMockData = Array(Math.round(config.batchLimit * (2 / 3))).join("1");
     let secondMockData = Array(Math.round(config.batchLimit / 2)).join("2");
-    firstMockEvent.state = { data: firstMockData };
-    secondMockEvent.state = { data: secondMockData };
+    firstMockEvent.data = { data: firstMockData };
+    secondMockEvent.data = { data: secondMockData };
     let addEventMessage = createAddEventMessage(firstMockEvent);
     let forceCompressionMsg = createForceCompressionMessage();
 
@@ -97,7 +97,7 @@ describe("Compression Worker Tests", () => {
     let worker = createTestWorker();
     let mockEvent = getMockEvent();
     let mockEventData = Array(Math.round(config.batchLimit + 1)).join("1");
-    mockEvent.state = { data: mockEventData };
+    mockEvent.data = { data: mockEventData };
     let addEventMessage = createAddEventMessage(mockEvent);
 
     worker.postMessage(addEventMessage);
@@ -118,8 +118,8 @@ describe("Compression Worker Tests", () => {
     let mockXhrErrorEvent = getMockEvent(InstrumentationEventName);
     let mockXhrErrorEventState = {
       type: Instrumentation.XhrError
-    } as IXhrErrorEventState;
-    mockXhrErrorEvent.state = mockXhrErrorEventState;
+    } as IXhrErrorEventData;
+    mockXhrErrorEvent.data = mockXhrErrorEventState;
     let addEventMessage: IAddEventMessage = {
       type: WorkerMessageType.AddEvent,
       time: -1,
