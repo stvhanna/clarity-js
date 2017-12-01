@@ -1,7 +1,7 @@
 import { NodeIndex } from "../layout/stateprovider";
 
-export function transform(evt: TouchEvent): IPointerEventState[] {
-  let states: IPointerEventState[] = [];
+export function transform(evt: TouchEvent): IPointerState[] {
+  let states: IPointerState[] = [];
   let de = document.documentElement;
   let buttons = (evt.type === "touchstart" || evt.type === "touchmove") ? 1 : 0;
   for (let i = 0; i < evt.changedTouches.length; i++) {

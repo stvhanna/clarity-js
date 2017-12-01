@@ -80,7 +80,7 @@ interface IPlugin {
 
 interface IPayload {
   envelope: IEnvelope;
-  events: IEvent[];
+  events: IEventArray[];
   metadata?: IImpressionMetadata;
 }
 
@@ -97,16 +97,27 @@ interface IImpressionMetadata {
   version: string;
 }
 
-interface IEventData {
+interface IEventInfo {
   type: string;
   data: any;
+  converter: (data: any) => any[];
   time?: number;
 }
 
-interface IEvent extends IEventData {
+interface IEvent {
+  type: string; /* Event type */
   id: number; /* Event ID */
   time: number; /* Time relative to page start */
+  data: any;  /* Verbose data JSON converted to a non-verbose array */
 }
+
+// IEvent object converted to a value array representation
+type IEventArray = [
+  string, // type
+  number, // id
+  number, // time
+  any[]   // data, converted to a value array
+];
 
 interface IDroppedPayloadInfo {
   payload: string;
@@ -153,7 +164,7 @@ interface ITimestampedWorkerMessage extends IWorkerMessage {
 }
 
 interface IAddEventMessage extends ITimestampedWorkerMessage {
-  event: IEvent;
+  event: IEventArray;
 }
 
 interface ICompressedBatchMessage extends IWorkerMessage {
@@ -204,14 +215,14 @@ interface IAttributes {
   [key: string]: string;
 }
 
-interface ILayoutEventData {
-  index: number;
-  action: Action;
-  time?: number;
+interface IDiscover {
+  dom: any[];
 }
 
-interface IDiscover extends ILayoutEventData {
-  state: ILayoutState;
+interface ILayoutEventData {
+  action: Action;
+  index: number;
+  time?: number;
 }
 
 interface IMutation extends ILayoutEventData {
@@ -235,9 +246,7 @@ interface IMove extends IMutation {
 interface IAttributeUpdate extends IMutation {
   new?: IAttributes;
   removed?: string[];
-  // Attribute updates can resize element or enable scrolling, so layout can change
-  // Note: This might require a separate event
-  layout?: ILayoutRectangle;
+  layout?: ILayoutRectangle;  // Attribute updates can resize element or enable scrolling, so layout can change
 }
 
 interface ICharacterDataUpdate extends IMutation {
@@ -257,14 +266,15 @@ interface IInput extends ILayoutEventData {
 // different layout events originating from different actions
 interface ILayoutEventInfo extends ILayoutEventData {
   node: Node;
+  converter: (data: any) => any[];
 }
 
 interface ILayoutState  {
   index: number;  /* Index of the layout element */
-  tag: string;  /* Tag name of the element */
   parent: number; /* Index of the parent element */
   previous: number; /* Index of the previous sibling, if known */
   next: number; /* Index of the next sibling, if known */
+  tag: string;  /* Tag name of the element */
 }
 
 interface IDoctypeLayoutState extends ILayoutState {
@@ -331,15 +341,15 @@ interface IShadowDomMutationSummary {
 /* ##################################### */
 
 interface IPointerModule {
-  transform(evt: Event): IPointerEventState[];
+  transform(evt: Event): IPointerState[];
 }
 
 interface IPointerEventData {
-  state: IPointerEventState;
+  state: IPointerState;
 }
 
 /* Spec: https://www.w3.org/TR/pointerevents/#pointerevent-interface */
-interface IPointerEventState {
+interface IPointerState {
   index: number; /* Pointer ID */
   type: string; /* Original event that is mapped to pointer event */
   pointer: string; /* pointerType: mouse, pen, touch */
@@ -391,7 +401,8 @@ declare const enum Instrumentation {
   ClarityAssertFailed,
   ClarityDuplicated,
   ShadowDomInconsistent,
-  ClarityActivateError
+  ClarityActivateError,
+  PerformanceStateError
 }
 
 interface IInstrumentationEventData {
@@ -461,8 +472,30 @@ interface IClarityActivateErrorEventData extends IInstrumentationEventData {
 /* #########   PERFORMANCE   ########### */
 /* ##################################### */
 
-interface IPerformanceTiming extends PerformanceTiming {
-  // We send back all properties from performance.timing object
+// Replicates PerformanceTiming interface, but without toJSON property
+interface IPerformanceTiming {
+  connectEnd: number;
+  connectStart: number;
+  domainLookupEnd: number;
+  domainLookupStart: number;
+  domComplete: number;
+  domContentLoadedEventEnd: number;
+  domContentLoadedEventStart: number;
+  domInteractive: number;
+  domLoading: number;
+  fetchStart: number;
+  loadEventEnd: number;
+  loadEventStart: number;
+  msFirstPaint: number;
+  navigationStart: number;
+  redirectEnd: number;
+  redirectStart: number;
+  requestStart: number;
+  responseEnd: number;
+  responseStart: number;
+  unloadEventEnd: number;
+  unloadEventStart: number;
+  secureConnectionStart: number;
 }
 
 interface IPerformanceResourceTiming {
@@ -478,4 +511,12 @@ interface IPerformanceResourceTiming {
   transferSize?: number;
   encodedBodySize?: number;
   decodedBodySize?: number;
+}
+
+interface INavigationTimingEventData {
+  timing: IPerformanceTiming;
+}
+
+interface IPerformanceResourceTimingEventData {
+  entries: IPerformanceResourceTiming[];
 }

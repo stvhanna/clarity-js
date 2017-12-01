@@ -1,6 +1,8 @@
 import compress from "./compress";
 import { createCompressionWorker } from "./compressionworker";
 import { config } from "./config";
+import eventToArray from "./converters/core";
+import * as InstrumentationCoverters from "./converters/instrumentation";
 import getPlugin from "./plugins";
 import { debug, getCookie, guid, isNumber, mapProperties, setCookie } from "./utils";
 
@@ -30,7 +32,7 @@ let droppedPayloads: { [key: number]: IDroppedPayloadInfo };
 // Storage for events that were posted to compression worker, but have not returned to core as compressed batches yet.
 // When page is unloaded, keeping such event copies in core allows us to terminate compression worker safely and then
 // compress and upload remaining events synchronously from the main thread.
-let pendingEvents: IEvent[] = [];
+let pendingEvents: IEventArray[] = [];
 
 // Storage for payloads that are compressed and are ready to be sent, but are waiting for Clarity trigger.
 // Once trigger is fired, all payloads from this array will be sent in the order they were generated.
@@ -94,7 +96,7 @@ export function teardown() {
   state = State.Unloaded;
 
   // Instrument teardown and upload residual events
-  instrument({ type: Instrumentation.Teardown });
+  instrument({ type: Instrumentation.Teardown }, InstrumentationCoverters.instrumentationToArray);
   uploadPendingEvents();
 }
 
@@ -108,13 +110,14 @@ export function bind(target: EventTarget, event: string, listener: EventListener
   bindings[event] = eventBindings;
 }
 
-export function addEvent(data: IEventData, scheduleUpload: boolean = true) {
-  let evt: IEvent = {
+export function addEvent(data: IEventInfo, scheduleUpload: boolean = true) {
+  let evtJson: IEvent = {
     id: eventCount++,
     time: isNumber(data.time) ? data.time : getTimestamp(),
     type: data.type,
     data: data.data
   };
+  let evt = eventToArray(evtJson, data.converter);
   let addEventMessage: IAddEventMessage = {
     type: WorkerMessageType.AddEvent,
     event: evt,
@@ -130,7 +133,7 @@ export function addEvent(data: IEventData, scheduleUpload: boolean = true) {
   }
 }
 
-export function addMultipleEvents(events: IEventData[]) {
+export function addMultipleEvents(events: IEventInfo[]) {
   if (events.length > 0) {
     // Don't schedule upload until we add the last event
     for (let i = 0; i < events.length - 1; i++) {
@@ -167,9 +170,9 @@ export function getTimestamp(unix?: boolean, raw?: boolean) {
   return (raw ? time : Math.round(time));
 }
 
-export function instrument(eventData: IInstrumentationEventData) {
+export function instrument(instrumentationData: IInstrumentationEventData, converter: (data: IInstrumentationEventData) => any[]) {
   if (config.instrument) {
-    addEvent({type: "Instrumentation", data: eventData});
+    addEvent({type: "Instrumentation", data: instrumentationData, converter});
   }
 }
 
@@ -240,7 +243,7 @@ function upload(payload: string, onSuccess?: UploadCallback, onFailure?: UploadC
       type: Instrumentation.TotalByteLimitExceeded,
       bytes: sentBytesCount
     };
-    instrument(totalByteLimitExceededEventState);
+    instrument(totalByteLimitExceededEventState, InstrumentationCoverters.byteLimitExceededToArray);
     teardown();
   }
 }
@@ -276,22 +279,22 @@ function onFirstSendDeliveryFailure(status: number, rawPayload: string, compress
     sequenceNumber: sentObj.envelope.sequenceNumber,
     compressedLength: compressedPayload.length,
     rawLength: rawPayload.length,
-    firstEventId: sentObj.events[0].id,
-    lastEventId: sentObj.events[sentObj.events.length - 1].id,
+    firstEventId: sentObj.events[0][1/*id*/],
+    lastEventId: sentObj.events[sentObj.events.length - 1][1/*id*/],
     attemptNumber: 0
   };
   droppedPayloads[xhrErrorEventData.sequenceNumber] = {
     payload: compressedPayload,
     xhrError: xhrErrorEventData
   };
-  instrument(xhrErrorEventData);
+  instrument(xhrErrorEventData, InstrumentationCoverters.xhrErrorToArray);
   sentBytesCount -= compressedPayload.length;
 }
 
 function onResendDeliveryFailure(status: number, droppedPayloadInfo: IDroppedPayloadInfo) {
   droppedPayloadInfo.xhrError.requestStatus = status;
   droppedPayloadInfo.xhrError.attemptNumber++;
-  instrument(droppedPayloadInfo.xhrError);
+  instrument(droppedPayloadInfo.xhrError, InstrumentationCoverters.xhrErrorToArray);
 }
 
 function onResendDeliverySuccess(droppedPayloadInfo: IDroppedPayloadInfo) {
@@ -362,7 +365,7 @@ function prepare() {
       type: Instrumentation.ClarityDuplicated,
       currentImpressionId: document[ClarityAttribute]
     };
-    instrument(eventData);
+    instrument(eventData, InstrumentationCoverters.clarityDuplicatedToArray);
     return false;
   }
 
@@ -397,7 +400,7 @@ function onActivateError(e: Error) {
     type: Instrumentation.ClarityActivateError,
     error: e.message
   };
-  instrument(clarityActivateError);
+  instrument(clarityActivateError, InstrumentationCoverters.clarityActivateErrorToArray);
   teardown();
 }
 
@@ -423,10 +426,11 @@ function checkFeatures() {
   }
 
   if (missingFeatures.length > 0) {
-    instrument({
+    let eventData: IMissingFeatureEventData = {
       type: Instrumentation.MissingFeature,
       missingFeatures
-    } as IMissingFeatureEventData);
+    };
+    instrument(eventData, InstrumentationCoverters.missingFeatureToArray);
     return false;
   }
 

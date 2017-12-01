@@ -1,3 +1,4 @@
+import ViewportConverter from "../converters/viewport";
 import { addEvent, bind } from "../core";
 
 export default class Viewport implements IPlugin {
@@ -57,7 +58,7 @@ export default class Viewport implements IPlugin {
     }
     if (recordState) {
       this.lastViewportState = data;
-      addEvent({type: this.eventName, data});
+      addEvent({type: this.eventName, data, converter: ViewportConverter});
     }
   }
 
