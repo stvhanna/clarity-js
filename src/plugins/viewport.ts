@@ -1,4 +1,4 @@
-import ViewportConverter from "../converters/viewport";
+import ViewportConverter from "../../converters/toarray/viewport";
 import { addEvent, bind } from "../core";
 
 export default class Viewport implements IPlugin {

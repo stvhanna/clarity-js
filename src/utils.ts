@@ -1,5 +1,5 @@
+import * as InstrumentationConverters from "./../converters/toarray/instrumentation";
 import { config } from "./config";
-import * as InstrumentationConverters from "./converters/instrumentation";
 import { instrument } from "./core";
 
 // Credit: http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript

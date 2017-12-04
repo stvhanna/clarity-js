@@ -1,4 +1,4 @@
-import PointerConverter from "../converters/pointer";
+import PointerConverter from "../../converters/toarray/pointer";
 import { addEvent, bind } from "../core";
 import * as mouse from "./pointer/mouse";
 import * as touch from "./pointer/touch";

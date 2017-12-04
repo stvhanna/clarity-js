@@ -1,5 +1,5 @@
+import * as instrumentationCoverters from "../../converters/toarray/instrumentation";
 import { bind, instrument } from "../core";
-import * as instrumentationCoverters from "./../converters/instrumentation";
 
 export default class ErrorMonitor implements IPlugin {
 

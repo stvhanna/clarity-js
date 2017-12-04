@@ -1,6 +1,6 @@
+import * as InstrumentationCoverters from "../../converters/toarray/instrumentation";
+import * as PerformanceConverters from "../../converters/toarray/performance";
 import { config } from "../config";
-import * as InstrumentationCoverters from "../converters/instrumentation";
-import * as PerformanceConverters from "../converters/performance";
 import { addEvent, instrument } from "../core";
 import { mapProperties } from "../utils";
 

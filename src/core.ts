@@ -1,8 +1,8 @@
+import EventConverter from "../converters/toarray/core";
+import * as InstrumentationCoverters from "../converters/toarray/instrumentation";
 import compress from "./compress";
 import { createCompressionWorker } from "./compressionworker";
 import { config } from "./config";
-import eventToArray from "./converters/core";
-import * as InstrumentationCoverters from "./converters/instrumentation";
 import getPlugin from "./plugins";
 import { debug, getCookie, guid, isNumber, mapProperties, setCookie } from "./utils";
 
@@ -110,14 +110,15 @@ export function bind(target: EventTarget, event: string, listener: EventListener
   bindings[event] = eventBindings;
 }
 
-export function addEvent(data: IEventInfo, scheduleUpload: boolean = true) {
+export function addEvent(info: IEventInfo, scheduleUpload: boolean = true) {
   let evtJson: IEvent = {
     id: eventCount++,
-    time: isNumber(data.time) ? data.time : getTimestamp(),
-    type: data.type,
-    data: data.data
+    time: isNumber(info.time) ? info.time : getTimestamp(),
+    type: info.type,
+    data: info.data,
+    converter: info.converter
   };
-  let evt = eventToArray(evtJson, data.converter);
+  let evt = EventConverter(evtJson);
   let addEventMessage: IAddEventMessage = {
     type: WorkerMessageType.AddEvent,
     event: evt,
