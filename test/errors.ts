@@ -27,7 +27,7 @@ describe("Error Tests", () => {
         errors.logError(syntheticEvent);
         let events = stopObserving();
         assert.equal(events.length, 1);
-        assert.equal(events[0].data.type, Instrumentation.JsError);
+        assert.equal(events[0].type, Instrumentation.JsError);
         assert.equal(events[0].data.message, message);
         assert.equal(events[0].data.source, filename);
         assert.equal(events[0].data.lineno, lineno);
@@ -49,7 +49,7 @@ describe("Error Tests", () => {
         errors.logError(syntheticEvent);
         let events = stopObserving();
         assert.equal(events.length, 1);
-        assert.equal(events[0].data.type, Instrumentation.JsError);
+        assert.equal(events[0].type, Instrumentation.JsError);
         assert.equal(events[0].data.message, message);
         assert.equal(events[0].data.source, filename);
         assert.equal(events[0].data.lineno, lineno);
@@ -68,7 +68,7 @@ describe("Error Tests", () => {
         errors.logError(syntheticEvent);
         let events = stopObserving();
         assert.equal(events.length, 3);
-        assert.equal(events[0].data.type, Instrumentation.JsError);
+        assert.equal(events[0].type, Instrumentation.JsError);
         assert.equal(events[0].data.message, message);
         done();
     });
@@ -81,7 +81,7 @@ describe("Error Tests", () => {
         errors.logError(syntheticEvent);
         let events = stopObserving();
         assert.equal(events.length, 1);
-        assert.equal(events[0].data.type, Instrumentation.JsError);
+        assert.equal(events[0].type, Instrumentation.JsError);
         assert.equal(events[0].data.message, message);
         done();
     });

@@ -1,4 +1,3 @@
-import * as InstrumentationConverters from "./../converters/toarray/instrumentation";
 import { config } from "./config";
 import { instrument } from "./core";
 
@@ -86,11 +85,10 @@ export function assert(condition: boolean, source: string, comment: string) {
   if (condition === false) {
     debug(`>>> Clarity Assert failed\nSource: ${source}\nComment: ${comment}`);
     let eventState: IClarityAssertFailedEventData = {
-      type: Instrumentation.ClarityAssertFailed,
       source,
       comment
     };
-    instrument(eventState, InstrumentationConverters.assertFailedToArray);
+    instrument(Instrumentation.ClarityAssertFailed, eventState);
   }
 }
 

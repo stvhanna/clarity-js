@@ -4,11 +4,10 @@ import * as core from "../src/core";
 import { IgnoreTag, NodeIndex } from "../src/plugins/layout/stateprovider";
 import { cleanupFixture, setupFixture } from "./testsetup";
 import uncompress from "./uncompress";
-import { getEventsByType, observeEvents } from "./utils";
+import { getEventsByOrigin, observeEvents } from "./utils";
 
 import * as chai from "chai";
 
-let eventName = "Layout";
 let assert = chai.assert;
 
 describe("Layout Tests", () => {
@@ -23,7 +22,7 @@ describe("Layout Tests", () => {
     observer.observe(document, { childList: true, subtree: true });
 
     // Add a node to the document and observe Clarity events
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let div = document.createElement("div");
     let span = document.createElement("span");
     span.innerHTML = "Clarity";
@@ -47,7 +46,7 @@ describe("Layout Tests", () => {
     observer.observe(document, { childList: true, subtree: true });
 
     // Remove a node from the document and observe Clarity events
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let dom = document.getElementById("clarity");
     let index = dom[NodeIndex];
     dom.parentNode.removeChild(dom);
@@ -67,7 +66,7 @@ describe("Layout Tests", () => {
     observer.observe(document, { childList: true, subtree: true });
 
     // Move an existing node in the document and observe Clarity events
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let dom = document.getElementById("clarity");
     let backup = document.getElementById("backup");
     backup.appendChild(dom);
@@ -86,7 +85,7 @@ describe("Layout Tests", () => {
     observer.observe(document, { childList: true, subtree: true });
 
     // Insert a node before an existing node and observe Clarity events
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let dom = document.getElementById("clarity");
     let backup = document.getElementById("backup");
     let domIndex = dom[NodeIndex];
@@ -127,7 +126,7 @@ describe("Layout Tests", () => {
     observer.observe(document, { childList: true, subtree: true });
 
     // Insert a node before an existing node and observe Clarity events
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let events: IEvent[] = [];
     let callbackCount = 0;
     let script = document.createElement("script");
@@ -144,7 +143,7 @@ describe("Layout Tests", () => {
         // IE path: Only div insertion is reported in the first callback
         if (events.length === 1) {
           // Observe more events
-          stopObserving = observeEvents(eventName);
+          stopObserving = observeEvents(Origin.Layout);
         } else {
           // Non-IE path: Both div and script are reported in the first callback
           observer.disconnect();
@@ -162,7 +161,7 @@ describe("Layout Tests", () => {
         let span = document.createElement("span");
         document.body.appendChild(span);
         // Observe more events
-        stopObserving = observeEvents(eventName);
+        stopObserving = observeEvents(Origin.Layout);
       } else {
         observer.disconnect();
         assert.equal(events.length, 4);
@@ -185,7 +184,7 @@ describe("Layout Tests", () => {
     observer.observe(document, { childList: true, subtree: true });
 
     // Move multiple nodes from one parent to another and observe Clarity events
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let dom = document.getElementById("clarity");
     let backup = document.getElementById("backup");
     let span = document.createElement("span");
@@ -219,7 +218,7 @@ describe("Layout Tests", () => {
     observer.observe(document, { childList: true, subtree: true });
 
     // Move multiple nodes from one parent to another and observe Clarity events
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let dom = document.getElementById("clarity");
     let backup = document.getElementById("backup");
     let backupIndex = backup[NodeIndex];
@@ -242,7 +241,7 @@ describe("Layout Tests", () => {
   it("checks that insertion of multiple nodes in the same mutation record is handled correctly", (done: DoneFn) => {
     let observer = new MutationObserver(callback);
     observer.observe(document, { childList: true, subtree: true });
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
 
     let df = document.createDocumentFragment();
     let n1 = document.createElement("div");
@@ -283,7 +282,7 @@ describe("Layout Tests", () => {
   it("checks that removal of multiple nodes in the same mutation record is handled correctly", (done: DoneFn) => {
     let observer = new MutationObserver(callback);
     observer.observe(document, { childList: true, subtree: true });
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
 
     let dom = document.getElementById("clarity");
     let children = [];
@@ -325,7 +324,7 @@ describe("Layout Tests", () => {
   it("checks that removal of a known node through a subtree of its ignored parent is handled correctly", (done: DoneFn) => {
     let observer = new MutationObserver(callback);
     observer.observe(document, { childList: true, subtree: true });
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
 
     let clarityNode = document.getElementById("clarity");
     let backupNode = document.getElementById("backup");
@@ -357,7 +356,7 @@ describe("Layout Tests", () => {
     observer.observe(document, { childList: true, subtree: true, attributes: true });
 
     // Add a node to the document and observe Clarity events
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let count = 0;
     let div = document.createElement("div");
     document.body.appendChild(div);
@@ -381,7 +380,7 @@ describe("Layout Tests", () => {
     observer.observe(document, { childList: true, subtree: true, attributes: true });
 
     // Add a node to the document and observe Clarity events
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let div = document.createElement("div");
     document.body.appendChild(div);
     div.setAttribute("data-clarity", "test");
@@ -401,7 +400,7 @@ describe("Layout Tests", () => {
     observer.observe(document, { childList: true, subtree: true, attributes: true });
 
     // Add a node to the document and observe Clarity events
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let clarity = document.getElementById("clarity");
     let div = document.createElement("div");
     document.body.appendChild(div);
@@ -423,7 +422,7 @@ describe("Layout Tests", () => {
     observer.observe(document, { childList: true, subtree: true, attributes: true });
 
     // Add a node to the document and observe Clarity events
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let div1 = document.createElement("div");
     let div2 = document.createElement("div");
     let div3 = document.createElement("div");
@@ -451,7 +450,7 @@ describe("Layout Tests", () => {
     observer.observe(document, { childList: true, subtree: true, attributes: true });
 
     // Add a node to the document and observe Clarity events
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let div = document.createElement("div");
     document.body.appendChild(div);
     document.body.removeChild(div);
@@ -475,7 +474,7 @@ describe("Layout Tests", () => {
     observer.observe(document, { childList: true, subtree: true, attributes: true });
 
     // Add a node to the document and observe Clarity events
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let div = document.createElement("div");
     let span = document.createElement("span");
     document.body.appendChild(div);
@@ -501,7 +500,7 @@ describe("Layout Tests", () => {
     let observer = new MutationObserver(callback);
     observer.observe(document, { childList: true, subtree: true, attributes: true });
 
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let clarityDiv = document.getElementById("clarity");
     let span = document.createElement("span");
     let clarityDivIndex = clarityDiv[NodeIndex];
@@ -536,7 +535,7 @@ describe("Layout Tests", () => {
     observer.observe(document, { childList: true, subtree: true });
 
     // Insert a node before an existing node and observe Clarity events
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let n1 = document.createElement("div");
     let n2 = document.createElement("span");
     let bodyIndex = document.body[NodeIndex];
@@ -567,7 +566,7 @@ describe("Layout Tests", () => {
     let observer = new MutationObserver(callback);
     observer.observe(document, { childList: true, subtree: true });
 
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let divOne = document.createElement("div");
     let divTwo = document.createElement("div");
     let clarityDiv = document.getElementById("clarity");
@@ -603,7 +602,7 @@ describe("Layout Tests", () => {
     let observer = new MutationObserver(callback);
     observer.observe(document, { childList: true, subtree: true });
 
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let divOne = document.createElement("div");
     let divTwo = document.createElement("div");
     let callbackNumber = 0;
@@ -636,7 +635,7 @@ describe("Layout Tests", () => {
     config.showImages = false;
 
     // Add a node to the document and observe Clarity events
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let img = document.createElement("img");
     img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAEALAAAAAABAAEAAAIBTAA7";
     document.body.appendChild(img);
@@ -660,7 +659,7 @@ describe("Layout Tests", () => {
     config.showImages = true;
 
     // Add a node to the document and observe Clarity events
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let img = document.createElement("img");
     let src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAEALAAAAAABAAEAAAIBTAA7";
     img.src = src;
@@ -685,7 +684,7 @@ describe("Layout Tests", () => {
     config.showText = false;
 
     // Add a node to the document and observe Clarity events
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let input = document.createElement("input");
     input.setAttribute("value", "Clarity");
     document.body.appendChild(input);
@@ -706,7 +705,7 @@ describe("Layout Tests", () => {
     observer.observe(document, { childList: true, subtree: true });
 
     // Add a node to the document and observe Clarity events
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let script = document.createElement("script");
     script.innerText = "/*some javascriptcode*/";
     document.body.appendChild(script);
@@ -734,7 +733,7 @@ describe("Layout Tests", () => {
     observer.observe(document, { childList: true, subtree: true });
 
     // Add a node to the document and observe Clarity events
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let meta = document.createElement("meta");
     document.body.appendChild(meta);
 
@@ -754,7 +753,7 @@ describe("Layout Tests", () => {
     observer.observe(document, { childList: true, subtree: true });
 
     // Add a node to the document and observe Clarity events
-    let stopObserving = observeEvents(eventName);
+    let stopObserving = observeEvents(Origin.Layout);
     let comment = document.createComment("some explanation");
     document.body.appendChild(comment);
 
@@ -788,7 +787,7 @@ describe("Layout Tests", () => {
       observer.disconnect();
 
       // Add a node to the document and observe Clarity events
-      stopObserving = observeEvents(eventName);
+      stopObserving = observeEvents(Origin.Layout);
 
       // Trigger scroll
       outerDiv.addEventListener("scroll", scrollCallback);
@@ -830,7 +829,7 @@ describe("Layout Tests", () => {
         observer.disconnect();
 
         // Add a node to the document and observe Clarity events
-        stopObserving = observeEvents(eventName);
+        stopObserving = observeEvents(Origin.Layout);
 
         // Trigger scroll after a mutation update
         outerDiv.addEventListener("scroll", scrollCallback);
@@ -875,7 +874,7 @@ describe("Layout Tests", () => {
         observer.disconnect();
 
         // Add a node to the document and observe Clarity events
-        stopObserving = observeEvents(eventName);
+        stopObserving = observeEvents(Origin.Layout);
 
         // Trigger scroll after a mutation update
         outerDiv.addEventListener("scroll", scrollCallback);
@@ -905,7 +904,7 @@ describe("Layout Tests", () => {
       observer.disconnect();
 
       // Add a node to the document and observe Clarity events
-      stopObserving = observeEvents(eventName);
+      stopObserving = observeEvents(Origin.Layout);
 
       // Trigger scroll
       input.addEventListener("change", inputChangeCallback);
@@ -940,7 +939,7 @@ describe("Layout Tests", () => {
       observer.disconnect();
 
       // Add a node to the document and observe Clarity events
-      stopObserving = observeEvents(eventName);
+      stopObserving = observeEvents(Origin.Layout);
 
       // Trigger scroll
       textarea.addEventListener("input", inputChangeCallback);

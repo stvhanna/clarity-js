@@ -1,15 +1,12 @@
-import EventToArrayConverter from "../converters/toarray/core";
-import { xhrErrorToArray } from "../converters/toarray/instrumentation";
 import { createCompressionWorker } from "./../src/compressionworker";
 import { config } from "./../src/config";
 import * as core from "./../src/core";
-import { mockDataToArray } from "./convert";
 import { cleanupFixture, setupFixture } from "./testsetup";
-import { getMockEnvelope, getMockEvent, getMockMetadata, MockEventName, observeEvents, payloadToEvents } from "./utils";
+import MockEventToArray from "./toarray";
+import { getMockEnvelope, getMockEvent, getMockMetadata, observeEvents, payloadToEvents } from "./utils";
 
 import * as chai from "chai";
 
-const InstrumentationEventName = "Instrumentation";
 const WorkerMessageWaitTime = 1000;
 let assert = chai.assert;
 
@@ -40,7 +37,7 @@ describe("Compression Worker Tests", () => {
     let forceCompressionMsg = createForceCompressionMessage();
 
     worker.postMessage(addEventMessage);
-    addEventMessage.event = EventToArrayConverter(secondMockEvent);
+    addEventMessage.event = MockEventToArray(secondMockEvent);
     worker.postMessage(addEventMessage);
     worker.postMessage(forceCompressionMsg);
 
@@ -66,7 +63,7 @@ describe("Compression Worker Tests", () => {
     let forceCompressionMsg = createForceCompressionMessage();
 
     worker.postMessage(addEventMessage);
-    addEventMessage.event = EventToArrayConverter(secondMockEvent);
+    addEventMessage.event = MockEventToArray(secondMockEvent);
     worker.postMessage(addEventMessage);
     worker.postMessage(forceCompressionMsg);
     scheduleTestFailureTimeout(done, "Worker has not responded in allocated time");
@@ -111,7 +108,7 @@ describe("Compression Worker Tests", () => {
       let payload = JSON.parse(compressedBatchMessage.rawData);
       let events = payloadToEvents(payload);
       assert.equal(events.length, 1);
-      assert.equal(events[0].type, MockEventName);
+      assert.equal(events[0].origin, TestConstants.MockOrigin);
       done();
     };
   });
@@ -119,16 +116,12 @@ describe("Compression Worker Tests", () => {
   it("validates that payloads consisting of a single XHR error event are not uploaded", (done: DoneFn) => {
     let worker = createTestWorker();
     let mockXhrErrorEvent = getMockEvent();
-    let mockXhrErrorEventState = {
-      type: Instrumentation.XhrError
-    } as IXhrErrorEventData;
-    mockXhrErrorEvent.type = InstrumentationEventName;
-    mockXhrErrorEvent.data = mockXhrErrorEventState;
-    mockXhrErrorEvent.converter = xhrErrorToArray;
+    mockXhrErrorEvent.origin = Origin.Instrumentation;
+    mockXhrErrorEvent.type = Instrumentation.XhrError;
     let addEventMessage: IAddEventMessage = {
       type: WorkerMessageType.AddEvent,
       time: -1,
-      event: EventToArrayConverter(mockXhrErrorEvent)
+      event: MockEventToArray(mockXhrErrorEvent)
     };
     let forceCompressionMsg = createForceCompressionMessage();
 
@@ -174,7 +167,7 @@ describe("Compression Worker Tests", () => {
     let addEventMessage: IAddEventMessage = {
       type: WorkerMessageType.AddEvent,
       time: -1,
-      event: EventToArrayConverter(event)
+      event: MockEventToArray(event)
     };
     return addEventMessage;
   }
