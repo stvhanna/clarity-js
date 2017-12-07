@@ -5,7 +5,7 @@ import * as touch from "./pointer/touch";
 export default class Pointer implements IPlugin {
   private distanceThreshold = 20;
   private timeThreshold = 500;
-  private lastMoveState: IPointerState;
+  private lastMoveState: IPointerEventData;
   private lastMoveTime: number;
 
   public activate() {
@@ -36,7 +36,7 @@ export default class Pointer implements IPlugin {
     }
   }
 
-  private processState(state: IPointerState, time: number) {
+  private processState(state: IPointerEventData, time: number) {
     switch (state.type) {
       case "mousemove":
       case "touchmove":
@@ -54,7 +54,7 @@ export default class Pointer implements IPlugin {
     }
   }
 
-  private checkDistance(stateOne: IPointerState, stateTwo: IPointerState) {
+  private checkDistance(stateOne: IPointerEventData, stateTwo: IPointerEventData) {
     let dx = stateOne.x - stateTwo.x;
     let dy = stateOne.y - stateTwo.y;
     return (dx * dx + dy * dy > this.distanceThreshold * this.distanceThreshold);
