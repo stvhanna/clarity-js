@@ -1,4 +1,4 @@
-import EventConverter from "../converters/toarray/convert";
+import EventConverter from "../converters/toarray";
 import compress from "./compress";
 import { createCompressionWorker } from "./compressionworker";
 import { config } from "./config";
